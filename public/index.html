@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="vendor/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+
+  <!-- Stripe collects the credit card details and provides a payment method ID -->
+  <script src="https://js.stripe.com/v3/" defer></script>
+
+  <!-- luxon is used to format appointment dates to the timezones they occur in -->
+  <script src="vendor/luxon.min.js" defer></script>
+
+  <script src="script/util.js" defer></script>
+  <script src="script/main.js" defer></script>
+
+  <!-- Each file handles one step of the process -->
+  <script src="script/01-address.js" defer></script>
+  <script src="script/02-timeslot.js" defer></script>
+  <script src="script/03-lab-order.js" defer></script>
+  <script src="script/04-payment.js" defer></script>
+  <script src="script/05-appointment.js" defer></script>
+
+  <title>Getlabs Partner API Sample</title>
+</head>
+<body>
+
+<div class="container mb-4">
+  <h1 class="py-4">Getlabs Partner API Sample</h1>
+
+  <div class="card" id="step-1">
+    <div class="card-body">
+      <h5 class="card-title">Appointment address</h5>
+      <p class="card-subtitle mb-4 text-muted">
+        The address where the appointment will take place. Submitting this form will send a request to '/availability' to get a list of appointments available at the provided address.
+      </p>
+      <form class="container" id="address-form">
+        <div class="row my-2">
+          <div class="col-9">
+            <label for="street" class="form-label">Street Address</label>
+            <input class="form-control" id="street" name="street" value="200 W. Washington Street" required>
+          </div>
+          <div class="col-3">
+            <label for="unit" class="form-label">Unit</label>
+            <input class="form-control" id="unit" name="unit">
+          </div>
+        </div>
+        <div class="row my-2">
+          <div class="col-6">
+            <label for="city" class="form-label">City</label>
+            <input class="form-control" id="city" name="city" value="Phoenix" required>
+          </div>
+          <div class="col-3">
+            <label for="state" class="form-label">State</label>
+            <select class="form-select" id="state" name="state" required>
+              <option value="AL">Alabama</option>
+              <option value="AK">Alaska</option>
+              <option value="AZ" selected>Arizona</option>
+              <option value="AR">Arkansas</option>
+              <option value="CA">California</option>
+              <option value="CO">Colorado</option>
+              <option value="CT">Connecticut</option>
+              <option value="DE">Delaware</option>
+              <option value="DC">District Of Columbia</option>
+              <option value="FL">Florida</option>
+              <option value="GA">Georgia</option>
+              <option value="HI">Hawaii</option>
+              <option value="ID">Idaho</option>
+              <option value="IL">Illinois</option>
+              <option value="IN">Indiana</option>
+              <option value="IA">Iowa</option>
+              <option value="KS">Kansas</option>
+              <option value="KY">Kentucky</option>
+              <option value="LA">Louisiana</option>
+              <option value="ME">Maine</option>
+              <option value="MD">Maryland</option>
+              <option value="MA">Massachusetts</option>
+              <option value="MI">Michigan</option>
+              <option value="MN">Minnesota</option>
+              <option value="MS">Mississippi</option>
+              <option value="MO">Missouri</option>
+              <option value="MT">Montana</option>
+              <option value="NE">Nebraska</option>
+              <option value="NV">Nevada</option>
+              <option value="NH">New Hampshire</option>
+              <option value="NJ">New Jersey</option>
+              <option value="NM">New Mexico</option>
+              <option value="NY">New York</option>
+              <option value="NC">North Carolina</option>
+              <option value="ND">North Dakota</option>
+              <option value="OH">Ohio</option>
+              <option value="OK">Oklahoma</option>
+              <option value="OR">Oregon</option>
+              <option value="PA">Pennsylvania</option>
+              <option value="RI">Rhode Island</option>
+              <option value="SC">South Carolina</option>
+              <option value="SD">South Dakota</option>
+              <option value="TN">Tennessee</option>
+              <option value="TX">Texas</option>
+              <option value="UT">Utah</option>
+              <option value="VT">Vermont</option>
+              <option value="VA">Virginia</option>
+              <option value="WA">Washington</option>
+              <option value="WV">West Virginia</option>
+              <option value="WI">Wisconsin</option>
+              <option value="WY">Wyoming</option>
+            </select>
+          </div>
+          <div class="col-3">
+            <label for="zipCode" class="form-label">Zip Code</label>
+            <input class="form-control" id="zipCode" name="zipCode" value="85003" required>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col d-flex align-items-end flex-column">
+            <button type="submit" class="btn btn-primary">Find available timeslots</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card d-none" id="step-2">
+    <div class="card-body">
+      <h5 class="card-title">Timeslot selection</h5>
+      <div class="card-subtitle mb-4 text-muted">
+        <p>The booking key from the selected timeslot is used to book the appointment. It can only be used to book an appointment for the address entered in the previous step.</p>
+        <p>The date and appointment times are converted to the timezone where this appointment will take place. This timezone is returned in the availability response.</p>
+        <p>Days without any available slots are disabled, as are individual timeslots.</p>
+        <p>Slots with a lightning bolt are priority slots, which means a lab order file must be uploaded to book the appointment.</p>
+      </div>
+      <select class="form-select mb-4" id="timeslot-day-select"></select>
+      <div class="container">
+        <div class="row row-cols-3 g-2" id="timeslot-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card d-none" id="step-3">
+    <div class="card-body">
+      <h5 class="card-title">Lab order details</h5>
+      <div class="card-subtitle text-muted mb-4">
+        <p>Either the doctors contact information or the lab order file needs to be collected. If it is a priority timeslot a lab order must be uploaded.</p>
+        <p>The file is read as a binary string and then Base64 encoded before sending.</p>
+        <p>When creating an appointment multiple of each value can be provided. For simplicity this example is only adding one.</p>
+      </div>
+      <form class="container" id="lab-order-form">
+        <div class="row my-2">
+          <div class="col-6">
+            <label for="contact-name" class="form-label">Doctor's name</label>
+            <input class="form-control" id="contact-name" name="contactName" value="Dr. Test">
+          </div>
+          <div class="col-6">
+            <label for="contact-phone" class="form-label">Doctor's phone number</label>
+            <input class="form-control" id="contact-phone" name="contactPhone" value="6136236879">
+          </div>
+        </div>
+        <div class="row my-2">
+          <div class="col">
+            <label for="lab-order-file" class="form-label">Lab order file</label>
+            <input class="form-control" id="lab-order-file-id" name="labOrderFileId" type="hidden">
+            <input class="form-control" id="lab-order-file" type="file">
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col d-flex align-items-end flex-column">
+            <button type="submit" class="btn btn-primary">Continue</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card d-none" id="step-4">
+    <div class="card-body">
+      <h5 class="card-title">Payment</h5>
+      <div class="card-subtitle text-muted mb-4">
+        <p>This step uses a combination of the Getlabs API and Stripe client library to create a Stripe payment method for the supplied credit card.</p>
+        <ol>
+          <li>A request is made to /setup with the patient details. This returns a Stripe setup intent.</li>
+          <li>The Stripe JavaScript library is initialised with Getlabs' publishable key.</li>
+          <li>The setup intent's client secret is used with the Stripe library to send the collected credit card details to Stripe. Stripe will return a payment method ID.</li>
+          <li>The payment method ID is sent to Getlabs as part of the appointment creation request. It will be charge after Getlabs confirms the appointment.</li>
+        </ol>
+        <p>You can use <a href="https://stripe.com/docs/testing" target="_blank">Stripe's test credit cards</a> for testing both success and error responses.</p>
+      </div>
+      <form class="container" id="payment-form">
+        <div class="row my-2">
+          <div class="col">
+            <div id="card-element"><!--Stripe.js injects the Card Element--></div>
+          </div>
+        </div>
+        <div class="row my-2">
+          <div class="col d-flex align-items-end flex-column">
+            <button id="submit" class="btn btn-primary">
+              Pay now
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card d-none" id="step-5">
+    <div class="card-body">
+      <h5 class="card-title">Appointment Booked</h5>
+      <div class="card-subtitle text-muted mb-4">
+        <p>
+          The final step is to create the appointment by sending a POST request to the /appointment endpoint with all of the collected data.
+        </p>
+        <p>
+          The API response will be shown below.
+        </p>
+      </div>
+      <div id="appointment-result">
+        <div class="d-flex justify-content-center p-5">
+          <div class="spinner-border" style="width: 10rem; height: 10rem;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

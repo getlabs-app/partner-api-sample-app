@@ -1,0 +1,14 @@
+{
+  "name": "sample-external-payment",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A sample application showing how to book an appointment with Getlabs' partner API.",
+  "main": "app.js",
+  "scripts": {},
+  "author": "",
+  "dependencies": {
+    "express": "^4.17.1",
+    "superagent": "^6.1.0",
+    "superagent-prefix": "0.0.2"
+  }
+}

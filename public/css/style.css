@@ -1,0 +1,18 @@
+@media (min-width: 1200px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+body {
+  font-family: sofia-pro, sans-serif;
+  background-color: #f3f3f3;
+}
+
+#card-element {
+  border-radius: 0.25em;
+  padding: 0.51rem 0.75rem;
+  border: 1px solid #ced4da;
+  width: 100%;
+  background: white;
+}
