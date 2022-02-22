@@ -14,7 +14,7 @@ const server = app.listen(port, () => {
 });
 
 const getlabsConifg = {
-  hostname: 'api-external.getlabs.io',
+  hostname: 'sandbox.api.getlabs.com',
   apiToken: ''
 }
 
@@ -24,12 +24,18 @@ if (!getlabsConifg.apiToken) {
 
 // Simulates a logged in user. All API requests will be made for this patient.
 const loggedInUser = {
-  "email": "test@getlabs.io",
-  "dob": "1970-01-01",
-  "birthSex": "female",
-  "phoneNumber": "6022370549",
-  "firstName": "Test",
-  "lastName": "Patient"
+  email: '', // email address will receive notifications
+  dob: '1970-01-01',
+  birthSex: 'female',
+  phoneNumber: '', // ex: 4805551234, phone number will receive SMS notifications
+  firstName: 'Test',
+  lastName: 'Patient'
+}
+
+if (!getlabsConifg.apiToken) {
+  throw new Error('Missing API Token. Add your Getlabs API token to getlabsConifg.');
+} else if (!loggedInUser.email || !loggedInUser.phoneNumber) {
+  throw new Error('Missing user email address or phone number. Add the missing data to loggedInUser.');
 }
 
 const agent = superagent
@@ -49,7 +55,7 @@ const getlabsPatient = agent.post('/patient')
     return response.body;
   })
   .catch((error) => {
-    console.error('Error fetching patient from Getlabs:', util.inspect(error.response.body, false, null, true));
+    console.error('Error fetching patient from Getlabs:', util.inspect(error.response?.body, false, null, true));
     server.close();
   });
 
@@ -58,13 +64,15 @@ const getlabsPatient = agent.post('/patient')
  */
 const getlabsApiProxy = (req, res) => {
   const logRequest = (status) => console.log(`[Getlabs request] ${req.method} ${status} https://${getlabsConifg.hostname}${req.originalUrl}`);
-  agent[req.method.toLowerCase()](req.originalUrl)
-    .send(req.body)
-    .then((response) => {
-      logRequest(response.status);
-      res.statusCode = response.status;
-      res.send(response.body);
-    })
+  const glReq = agent[req.method.toLowerCase()](req.originalUrl);
+  if (!['GET', 'DELETE'].includes(req.method)) {
+    glReq.send(req.body);
+  }
+  glReq.then((response) => {
+    logRequest(response.status);
+    res.statusCode = response.status;
+    res.send(response.body);
+  })
     .catch((error) => {
       logRequest(error.status);
       res.statusCode = error.status;
