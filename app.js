@@ -18,9 +18,7 @@ const server = app.listen(port, () => {
 const getlabsConifg = {
     hostname: 'sandbox.api.getlabs.com',
     apiToken: '', // this is your api token provided by getlabs
-    jwt: {
-        sub: '', // this is your getlabs provided client id
-    }
+    clientId: '', // this is your getlabs provided client id
 }
 
 // Simulates a logged in user. All API requests will be made for this patient.
@@ -36,8 +34,8 @@ const loggedInUser = {
 // check getlabsConifg is setup
 if (!getlabsConifg.apiToken) {
     throw new Error('Missing API Token. Add your Getlabs API token to getlabsConifg.');
-} else if (!getlabsConifg.jwt.sub) {
-    throw new Error('Missing sub from jwt. Add your Getlabs client id to getlabsConifg.jwt.sub.');
+} else if (!getlabsConifg.clientId) {
+    throw new Error('Missing clientId. Add your Getlabs client id.');
 } else if (!loggedInUser.email || !loggedInUser.phoneNumber) {
     throw new Error('Missing user email address or phone number. Add the missing data to loggedInUser.');
 }
@@ -75,7 +73,7 @@ const generateJwtForOauthToken = () => {
 
     // build payload
     const jwtPayload = {
-        sub: getlabsConifg.jwt.sub,
+        sub: getlabsConifg.clientId,
         aud: `https://${getlabsConifg.hostname}/oauth/token`,
     };
 
