@@ -20,7 +20,6 @@ const getlabsConifg = {
     apiToken: '', // this is your api token provided by getlabs
     jwt: {
         sub: '', // this is your getlabs provided client id
-        aud: 'https://api-external.getlabs.com/oauth/token',
     }
 }
 
@@ -71,13 +70,13 @@ const generateJwtForOauthToken = () => {
 
     // build header
     const jwtHeader = {
-        algorithm: 'HS256',
+        algorithm: 'HS512',
     };
 
     // build payload
     const jwtPayload = {
         sub: getlabsConifg.jwt.sub,
-        aud: getlabsConifg.jwt.aud,
+        aud: `https://${getlabsConifg.hostname}/oauth/token`,
     };
 
     return jwt.sign(jwtPayload, getlabsConifg.apiToken, jwtHeader);
