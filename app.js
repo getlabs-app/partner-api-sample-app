@@ -64,7 +64,6 @@ const getHttpClient = (bearerToken) => superagent
  * NOTE: we sign the jwt with the apiToken as your secret
  */
 const generateJwtForOauthToken = () => {
-  const jwt = require('jsonwebtoken');
 
   // build header
   const jwtHeader = {
