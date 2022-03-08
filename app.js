@@ -43,15 +43,15 @@ if (!getlabsConifg.apiToken) {
  */
 const auth = new Auth(getlabsConifg);
 auth.authenticate().then(()=>{
-  getGetlabsPatient(auth.getAuthTokens().access_token);
+  getGetlabsPatient();
 });
 
 /**
  * Function to Fetch or create the patient during startup based on the loggedInUser set above.
  * Stores the resulting promise so the the patient's ID can be added to requests.
  */
-function getGetlabsPatient(access_token) {
-  return auth.getHttpClient(access_token).post('/patient')
+function getGetlabsPatient() {
+  return auth.getHttpClient().post('/patient')
     .send(loggedInUser)
     .then((response) => {
       console.log(`Patient fetched from https://${getlabsConifg.hostname}/patient, all API requests will be made for this patient:`, response.body);
@@ -67,7 +67,7 @@ function getGetlabsPatient(access_token) {
  */
 const getlabsApiProxy = (req, res) => {
   const logRequest = (status) => console.log(`[Getlabs request] ${req.method} ${status} https://${getlabsConifg.hostname}${req.originalUrl}`);
-  const glReq = auth.getHttpClient(auth.getAuthTokens().access_token)[req.method.toLowerCase()](req.originalUrl);
+  const glReq = auth.getHttpClient()[req.method.toLowerCase()](req.originalUrl);
   if (!['GET', 'DELETE'].includes(req.method)) {
     glReq.send(req.body);
   }
@@ -79,7 +79,7 @@ const getlabsApiProxy = (req, res) => {
     .catch(async (error) => {
       if (error.status == 401) {
         // refresh tokens
-        await auth.refreshAccessToken(auth.getAuthTokens().access_token, auth.getAuthTokens().refresh_token);
+        await auth.refreshAccessToken();
 
         //retry request with refreshed tokens
         getlabsApiProxy(req, res)
@@ -101,7 +101,7 @@ app.post('/file', getlabsApiProxy);
 
 app.post(['/payment/setup', '/appointment'], (req, res) => {
   // only allow requests by the logged in patient
-  getGetlabsPatient(auth.getAuthTokens().access_token).then((patient) => {
+  getGetlabsPatient().then((patient) => {
     req.body.patientId = patient.id;
     getlabsApiProxy(req, res);
   });

@@ -29,6 +29,11 @@ class Auth {
    * @param bearerToken: the Authorization bearer token value for said request
    */
   getHttpClient(bearerToken){
+    // we'll assume access_token if no bearer token is passed
+    if (bearerToken === undefined){
+      bearerToken = this.getAuthTokens().access_token;
+    }
+
    return superagent
      .agent()
      .use(superagentPrefix(`https://${this.getlabsConifg.hostname}`))
@@ -76,10 +81,10 @@ class Auth {
    * update your access token in the event that it expires
    * @param refresh_token
    */
-  refreshAccessToken(access_token, refresh_token) {
-    return this.getHttpClient(access_token)
+  refreshAccessToken() {
+    return this.getHttpClient(this.getAuthTokens().access_token)
       .post(`/oauth/refresh-token`)
-      .query({refresh_token: refresh_token})
+      .query({refresh_token: this.getAuthTokens().refresh_token})
       .then((response) => {
         console.log(`Refreshing tokens: success`);
         this.oauthTokenResp = response.body;
