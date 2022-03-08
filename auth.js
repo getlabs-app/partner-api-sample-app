@@ -83,7 +83,7 @@ class Auth {
    */
   refreshAccessToken() {
     return this.getHttpClient(this.getAuthTokens().access_token)
-      .post(`/oauth/refresh-token`)
+      .post(`/oauth/token`)
       .query({refresh_token: this.getAuthTokens().refresh_token})
       .then((response) => {
         console.log(`Refreshing tokens: success`);

@@ -39,11 +39,14 @@ if (!getlabsConifg.apiToken) {
 }
 
 /**
- * Authenticate to getlabs api
+ * Authenticate to getlabs api and setup default patient
  */
+let patientDetails;
 const auth = new Auth(getlabsConifg);
 auth.authenticate().then(()=>{
-  getGetlabsPatient();
+  getGetlabsPatient().then((patient) => {
+    patientDetails = patient;
+  });
 });
 
 /**
@@ -101,8 +104,6 @@ app.post('/file', getlabsApiProxy);
 
 app.post(['/payment/setup', '/appointment'], (req, res) => {
   // only allow requests by the logged in patient
-  getGetlabsPatient().then((patient) => {
-    req.body.patientId = patient.id;
-    getlabsApiProxy(req, res);
-  });
+  req.body.patientId = patientDetails.id;
+  getlabsApiProxy(req, res);
 });
