@@ -102,7 +102,7 @@ function setOauthTokenResp() {
  */
 function refreshAccessToken(access_token, refresh_token) {
   return getHttpClient(access_token)
-    .post(`/oauth/refresh_token`)
+    .post(`/oauth/refresh-token`)
     .query({refresh_token: refresh_token})
     .then((response) => {
       console.log(`Refreshing tokens: success`);
