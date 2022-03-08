@@ -125,7 +125,7 @@ function refreshAccessToken(access_token, refresh_token) {
  * Stores the resulting promise so the the patient's ID can be added to requests.
  */
 function getGetlabsPatient(access_token) {
-  getHttpClient(access_token).post('/patient')
+  return getHttpClient(access_token).post('/patient')
     .send(loggedInUser)
     .then((response) => {
       console.log(`Patient fetched from https://${getlabsConifg.hostname}/patient, all API requests will be made for this patient:`, response.body);
@@ -168,7 +168,11 @@ const getlabsApiProxy = (req, res) => {
 /**
  * kick off the service
  */
-setOauthTokenResp();
+setOauthTokenResp().then(()=>{
+  getGetlabsPatient(oauthTokenResp.access_token);
+});
+
+
 
 /**
  * setup service endpoints
