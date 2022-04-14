@@ -7,8 +7,8 @@ const util = require('util');
  * Auth class is used to make calls to getlabs api
  */
 class Auth {
-  constructor(getlabsConifg) {
-    this.getlabsConifg = getlabsConifg;
+  constructor(getlabsConfig) {
+    this.getlabsConfig = getlabsConfig;
     this.oauthTokenResp = {
       access_token: '',
       refresh_token: '',
@@ -35,7 +35,7 @@ class Auth {
 
     return superagent
       .agent()
-      .use(superagentPrefix(`https://${this.getlabsConifg.hostname}`))
+      .use(superagentPrefix(`https://${this.getlabsConfig.hostname}`))
       .set('accept', 'json')
       .set('Authorization', `Bearer ${bearerToken}`);
   }
@@ -52,11 +52,11 @@ class Auth {
 
     // build payload
     const jwtPayload = {
-      sub: this.getlabsConifg.clientId,
-      aud: `https://${this.getlabsConifg.hostname}/oauth/token`,
+      sub: this.getlabsConfig.clientId,
+      aud: `https://${this.getlabsConfig.hostname}/oauth/token`,
     };
 
-    return jwt.sign(jwtPayload, this.getlabsConifg.apiToken, jwtHeader);
+    return jwt.sign(jwtPayload, this.getlabsConfig.apiToken, jwtHeader);
   }
 
   /**

@@ -8,7 +8,7 @@
    ```
 2. In `app.js` add your private Getlabs dev API token and client id for :
    ```javascript
-   const getlabsConifg = {
+   const getlabsConfig = {
     apiToken: 'eyJpZCI6IjExMmE3NzhlLTBhNTQtNGNmOS05MzkwLWUxYjdjNGWIrYlBXSWl6MnhpcVZlZ2NKL0o5dGM9In0=',
     clientId: '733ae0db-360d-46ec-89e7-645aa9fab2dd'
     ...

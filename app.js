@@ -12,7 +12,7 @@ const server = app.listen(port, () => {
 });
 
 // config provided by getlabs
-const getlabsConifg = {
+const getlabsConfig = {
   hostname: 'sandbox.api.getlabs.com',
   apiToken: '', // this is your api token provided by getlabs
   clientId: '', // this is your getlabs provided client id
@@ -28,10 +28,10 @@ const loggedInUser = {
   lastName: 'Patient',
 };
 
-// check getlabsConifg is setup
-if (!getlabsConifg.apiToken) {
-  throw new Error('Missing API Token. Add your Getlabs API token to getlabsConifg.');
-} else if (!getlabsConifg.clientId) {
+// check getlabsConfig is setup
+if (!getlabsConfig.apiToken) {
+  throw new Error('Missing API Token. Add your Getlabs API token to getlabsConfig.');
+} else if (!getlabsConfig.clientId) {
   throw new Error('Missing clientId. Add your Getlabs client id.');
 } else if (!loggedInUser.email || !loggedInUser.phoneNumber) {
   throw new Error('Missing user email address or phone number. Add the missing data to loggedInUser.');
@@ -41,7 +41,7 @@ if (!getlabsConifg.apiToken) {
  * Authenticate to getlabs api and setup default patient
  */
 let patientDetails;
-const auth = new Auth(getlabsConifg);
+const auth = new Auth(getlabsConfig);
 auth
   .authenticate()
   .then(() => {
@@ -64,7 +64,7 @@ function getGetlabsPatient() {
     .send(loggedInUser)
     .then((response) => {
       console.log(
-        `Patient fetched from https://${getlabsConifg.hostname}/patient, all API requests will be made for this patient:`,
+        `Patient fetched from https://${getlabsConfig.hostname}/patient, all API requests will be made for this patient:`,
         response.body,
       );
       return response.body;
@@ -79,7 +79,7 @@ function getGetlabsPatient() {
  */
 const getlabsApiProxy = (req, res) => {
   const logRequest = (status) =>
-    console.log(`[Getlabs request] ${req.method} ${status} https://${getlabsConifg.hostname}${req.originalUrl}`);
+    console.log(`[Getlabs request] ${req.method} ${status} https://${getlabsConfig.hostname}${req.originalUrl}`);
   const glReq = auth.getHttpClient()[req.method.toLowerCase()](req.originalUrl);
   if (!['GET', 'DELETE'].includes(req.method)) {
     glReq.send(req.body);
