@@ -1,4 +1,8 @@
-// Converts a form's values to a key/value pair object
+/**
+ * Converts a form's values to a key/value pair object
+ * @param formElement
+ * @returns {{}}
+ */
 const formToObj = (formElement) => {
   const formData = new FormData(formElement);
   return Array.from(formData.entries()).reduce(
@@ -10,7 +14,10 @@ const formToObj = (formElement) => {
   );
 };
 
-// Disables and adds a loading icon to all form buttons
+/**
+ * Disables and adds a loading icon to all form buttons
+ * @param isLoading
+ */
 const loading = (isLoading) => {
   document.querySelectorAll('form button').forEach((e) => {
     e.disabled = isLoading;
@@ -24,8 +31,28 @@ const loading = (isLoading) => {
   });
 };
 
-// A wrapper for fetch that triggers the loading indicator and basic error handling
-const glFetch = (input, init) => {
+/**
+ * re-usable error handler for glFetch
+ * @param response
+ */
+const glFetchErrorHandler = (response) => {
+  if (response.status >= 400) {
+    response.json().then((data) => {
+      console.log(data);
+      alert('API error response see console for more details');
+    });
+    throw `API error response: ${response.url}`;
+  }
+}
+
+/**
+ * A wrapper for fetch that triggers the loading indicator and basic error handling
+ * @param input
+ * @param init
+ * @param returnRawResponse
+ * @returns {Promise<Response>}
+ */
+const glFetch = (input, init, returnRawResponse = false) => {
   loading(true);
   return fetch(input, {
     headers: {
@@ -34,13 +61,11 @@ const glFetch = (input, init) => {
     ...init,
   }).then((response) => {
     loading(false);
-    if (response.status >= 400) {
-      response.json().then((data) => {
-        console.log(data);
-        alert('API error response see console for more details');
-      });
-      throw `API error response: ${response.url}`;
-    }
+    // let the caller handle it
+    if (returnRawResponse) return response;
+
+    glFetchErrorHandler(response);
+
     return response.json();
   });
 };
