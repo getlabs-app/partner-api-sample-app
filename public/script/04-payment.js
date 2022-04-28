@@ -66,6 +66,7 @@ const initPayment = () => {
   }, true)
   .then((response) => {
 
+    // 403 means you can't setup a cc intent so we skip this step
     if (response.status == 403) {
       step.goto(step.current+1);
       return;
