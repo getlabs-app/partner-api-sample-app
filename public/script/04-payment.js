@@ -57,11 +57,26 @@ const onPaymentFormSubmit = (e) => {
   confirmCardSetup(stripeData.card, stripeData.setupIntent.clientSecret);
 };
 
-// Get the Stripe setup intent from the Getlabs' API and initialise Stripe
+/**
+ * Get the Stripe setup intent from the Getlabs' API and initialise Stripe
+ */
 const initPayment = () => {
   glFetch('/payment/setup', {
     method: 'POST',
-  }).then((setupIntent) => (stripeData.setupIntent = setupIntent));
+  }, true)
+  .then((response) => {
+
+    // 403 means you can't setup a cc intent so we skip this step
+    if (response.status == 403) {
+      step.goto(step.current+1);
+      return;
+    }
+
+    // handle errors as we normally would
+    glFetchErrorHandler(response);
+
+    response.json().then((res) => (stripeData.setupIntent = res));
+  });
   initStripe();
 };
 

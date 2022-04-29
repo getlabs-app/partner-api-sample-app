@@ -38,6 +38,8 @@ const loggedInUser = {
 }
 ```
 
+NOTE: The patient's email, date of birth and birth sex must match a patient or app.js will throw startup errors.
+
 ## Test credit cards
 
 Stripe offers several credit cards for testing both successful and error responses: <https://stripe.com/docs/testing>
