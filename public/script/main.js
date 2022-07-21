@@ -15,6 +15,7 @@ const bookingData = {
       },
     ],
     paymentMethod: null, // provided by the Stripe library during the payment step
+    parkingInstruction: '', // provided by the additional info step. 
   },
 };
 
@@ -24,8 +25,8 @@ const step = {
   stepSetup: {
     // runs when loading the step
     2: () => initTimeslots(),
-    4: () => initPayment(),
-    5: () => bookAppointment(),
+    5: () => initPayment(),
+    6: () => bookAppointment(),
   },
   goto: function (stepNum) {
     document.getElementById('step-' + this.current)?.classList.add('d-none');

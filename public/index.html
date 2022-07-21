@@ -19,8 +19,9 @@
   <script src="script/01-address.js" defer></script>
   <script src="script/02-timeslot.js" defer></script>
   <script src="script/03-lab-order.js" defer></script>
-  <script src="script/04-payment.js" defer></script>
-  <script src="script/05-appointment.js" defer></script>
+  <script src="script/04-additional-info.js" defer></script>
+  <script src="script/05-payment.js" defer></script>
+  <script src="script/06-appointment.js" defer></script>
 
   <title>Getlabs Partner API Sample</title>
 </head>
@@ -174,6 +175,28 @@
 
   <div class="card d-none" id="step-4">
     <div class="card-body">
+      <h5 class="card-title">Additional Information</h5>
+      <div class="card-subtitle text-muted mb-4">
+        <p>Please provide any additional information here.</p>
+      </div>
+      <form class="container" id="additional-info-form">
+        <div class="row my-2">
+          <div class="col-6">
+            <label for="contact-name" class="form-label">Parking Instructions</label>
+            <textarea class="form-control" id="parking-instructions" name="parkingInstruction"></textarea>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col d-flex align-items-end flex-column">
+            <button type="submit" class="btn btn-primary">Continue</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card d-none" id="step-5">
+    <div class="card-body">
       <h5 class="card-title">Payment</h5>
       <div class="card-subtitle text-muted mb-4">
         <p>This step uses a combination of the Getlabs API and Stripe client library to create a Stripe payment method for the supplied credit card.</p>
@@ -202,7 +225,7 @@
     </div>
   </div>
 
-  <div class="card d-none" id="step-5">
+  <div class="card d-none" id="step-6">
     <div class="card-body">
       <h5 class="card-title">Appointment Booked</h5>
       <div class="card-subtitle text-muted mb-4">
