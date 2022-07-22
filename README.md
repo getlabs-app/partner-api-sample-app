@@ -43,3 +43,7 @@ NOTE: The patient's email, date of birth and birth sex must match a patient or a
 ## Test credit cards
 
 Stripe offers several credit cards for testing both successful and error responses: <https://stripe.com/docs/testing>
+
+## JWT token generation
+
+If you'd like to test the API via [Postman](https://www.postman.com/) or another 3rd-party tool, you can generate a signed JWT token for the `/oauth/token` endpoint by running the included [jwt-token.html](jwt-token.html) utility in your browser.
