@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const util = require('util');
 
 /**
- * Auth class is used to make calls to getlabs api
+ * Auth class is used authenticate and to make calls to getlabs api
  */
 class Auth {
   constructor(getlabsConfig) {
@@ -24,20 +24,26 @@ class Auth {
   }
 
   /**
+   * returns base path (and version) for getlabs api
+   * api documentation: https://api.getlabs.com/docs
+   * @returns {string}
+   */
+  getApiBasePath() {
+    return `https://${this.getlabsConfig.hostname}/v2`;
+  }
+
+  /**
    * returns the http client used to make external requests
    * @param bearerToken: the Authorization bearer token value for said request
    */
   getHttpClient(bearerToken) {
-    // we'll assume access_token if no bearer token is passed
-    if (bearerToken === undefined) {
-      bearerToken = this.getAuthTokens().access_token;
+    const sa = superagent.agent().use(superagentPrefix(this.getApiBasePath())).set('accept', 'json');
+
+    if (bearerToken === undefined && this.getAuthTokens().access_token) {
+      sa.set('Authorization', `Bearer ${this.getAuthTokens().access_token}`);
     }
 
-    return superagent
-      .agent()
-      .use(superagentPrefix(`https://${this.getlabsConfig.hostname}`))
-      .set('accept', 'json')
-      .set('Authorization', `Bearer ${bearerToken}`);
+    return sa;
   }
 
   /**
@@ -64,13 +70,18 @@ class Auth {
    * @returns {Promise<unknown>}
    */
   authenticate() {
-    return this.getHttpClient(this.generateJwtForOauthToken())
+    return this.getHttpClient()
       .post('/oauth/token')
+      .send({
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        assertion: this.generateJwtForOauthToken(),
+      })
       .then(async (response) => {
         console.log(`Token response received: storing token response`);
         this.oauthTokenResp = response.body;
       })
       .catch((error) => {
+        console.log(error);
         console.error('Error fetching access token from Getlabs:', util.inspect(error.response?.body, false, null, true));
       });
   }
@@ -81,8 +92,11 @@ class Auth {
    */
   refreshAccessToken() {
     return this.getHttpClient(this.getAuthTokens().access_token)
-      .post(`/oauth/token`)
-      .query({ refresh_token: this.getAuthTokens().refresh_token })
+      .post('/oauth/token')
+      .send({
+        grant_type: 'refresh_token',
+        refresh_token: this.getAuthTokens().refresh_token,
+      })
       .then((response) => {
         console.log(`Refreshing tokens: success`);
         this.oauthTokenResp = response.body;
