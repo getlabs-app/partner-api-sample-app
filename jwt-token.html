@@ -61,7 +61,7 @@
                 "aud": audience.value,
                 "sub": sub.value,
                 "iat": Math.floor(Date.now()/1000),
-                "exp": Math.floor(new Date(Date.now() + (60 * 60 * 24 * 365 * 1000)).getTime()/1000), // 1 year
+                "exp": Math.floor(new Date(Date.now() + (60 * 60 * 24 * 1000)).getTime()/1000), // 24h
             };
 
             const stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data));
