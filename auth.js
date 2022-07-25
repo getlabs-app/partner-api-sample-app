@@ -81,7 +81,6 @@ class Auth {
         this.oauthTokenResp = response.body;
       })
       .catch((error) => {
-        console.log(error);
         console.error('Error fetching access token from Getlabs:', util.inspect(error.response?.body, false, null, true));
       });
   }
