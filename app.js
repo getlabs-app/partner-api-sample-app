@@ -63,10 +63,7 @@ function getGetlabsPatient() {
     .post('/patient')
     .send(loggedInUser)
     .then((response) => {
-      console.log(
-        `Patient fetched from https://${getlabsConfig.hostname}/patient, all API requests will be made for this patient:`,
-        response.body,
-      );
+      console.log(`Patient fetched from ${auth.getApiBasePath()}/patient, all API requests will be made for this patient:`, response.body);
       return response.body;
     })
     .catch((error) => {
@@ -78,8 +75,7 @@ function getGetlabsPatient() {
  * Proxies the request to the Getlabs API and sends the response.
  */
 const getlabsApiProxy = (req, res) => {
-  const logRequest = (status) =>
-    console.log(`[Getlabs request] ${req.method} ${status} https://${getlabsConfig.hostname}${req.originalUrl}`);
+  const logRequest = (status) => console.log(`[Getlabs request] ${req.method} ${status} ${auth.getApiBasePath()}${req.originalUrl}`);
   const glReq = auth.getHttpClient()[req.method.toLowerCase()](req.originalUrl);
   if (!['GET', 'DELETE'].includes(req.method)) {
     glReq.send(req.body);
