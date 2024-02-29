@@ -13,7 +13,7 @@ const server = app.listen(port, () => {
 
 // config provided by getlabs
 const getlabsConfig = {
-  hostname: 'sandbox.api.getlabs.com',
+  hostname: 'api.getlabs-sandbox.com',
   apiToken: '', // this is your api token provided by getlabs
   clientId: '', // this is your getlabs provided client id
 }
