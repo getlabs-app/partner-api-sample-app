@@ -47,3 +47,9 @@ Stripe offers several credit cards for testing both successful and error respons
 ## JWT token generation
 
 If you'd like to test the API via [Postman](https://www.postman.com/) or another 3rd-party tool, you can generate a signed JWT token for the `/oauth/token` endpoint by running the included [jwt-token.html](jwt-token.html) utility in your browser.
+
+## Security and Dependabot
+
+This repo is not actively maintained, and this code does not run in production in Getlabs' infrastructure.
+Hence, we've disabled Dependabot for this repo.
+If you decide to use this code as the basis of your own code, you are responsible for patching your own code.
